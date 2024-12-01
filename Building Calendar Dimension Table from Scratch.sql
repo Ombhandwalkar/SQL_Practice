@@ -48,4 +48,3 @@ SELECT ADDDATE(cal_date, INTERVAL 1 DAY) AS cal_date,
     WHERE cal_date < CAST('2025-01-10' AS DATE) )
     SELECT * FROM cte
 
-
