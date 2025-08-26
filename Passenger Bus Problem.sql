@@ -1,4 +1,32 @@
--- PostgreSQL 
+drop table if exists buses;
+create table buses
+(
+	bus_id			int unique,
+	arrival_time	int,
+	capacity		int
+);
+
+drop table if exists Passengers;
+create table Passengers
+(
+	passenger_id	int unique,
+	arrival_time	int
+);
+
+
+-- Dataset 
+insert into buses values (1,2,1);
+insert into buses values (2,4,10);
+insert into buses values (3,7,2);
+
+insert into Passengers values(11,1);
+insert into Passengers values(12,1);
+insert into Passengers values(13,5);
+insert into Passengers values(14,6);
+insert into Passengers values(15,7);
+
+select * from buses;
+select * from Passengers;
 with recursive cte as 
 	(
 	with cte_data as
@@ -22,25 +50,9 @@ from cte
 order by bus_id;
 
 
+			
+			
+		
+	
 
 
--- MSSQL 
-with cte_data as
-		(select row_number() over(order by arrival_time) as rn, bus_id
-		, (select count(1) from passengers p 
-		  where p.arrival_time <= b.arrival_time) as total_passengers, capacity
-		from buses b),
-	cte as
-		(select rn, bus_id, capacity, total_passengers
-		 , case when capacity < total_passengers then capacity else total_passengers end as onboarded_bus
-		 , case when capacity < total_passengers then capacity else total_passengers end as total_onboarded
-		 from cte_data where rn=1
-		union all
-		 select d.rn, d.bus_id, d.capacity, d.total_passengers
-		 , case when d.capacity < (d.total_passengers - cte.total_onboarded) then d.capacity else (d.total_passengers - cte.total_onboarded) end as onboarded_bus
-		 , cte.total_onboarded + case when d.capacity < (d.total_passengers - cte.total_onboarded) then d.capacity else (d.total_passengers - cte.total_onboarded) end as total_onboarded
-		 from cte 
-		 join cte_data d on d.rn = cte.rn+1)
-select bus_id, onboarded_bus as passengers_cnt
-from cte
-order by bus_id;
